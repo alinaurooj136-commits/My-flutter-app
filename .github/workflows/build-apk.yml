@@ -4,14 +4,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0'
-      - run: flutter create . --project-name my_flutter_app --org com.example --overwrite
-      - run: |
-          FILE=$(find . -maxdepth 1 -iname "*.dart" | head -1)
-          cp "$FILE" lib/main.dart
+          channel: 'stable'
+      - name: Save your code
+        run: |
+          ls -la
+          FILE=$(find . -maxdepth 1 -type f -iname "*dart*" | head -1)
+          echo "Found your file: $FILE"
+          cp "$FILE" /tmp/mycode.dart
+          ls -lh /tmp/mycode.dart
+      - name: Create project
+        run: flutter create . --project-name my_flutter_app --org com.example --overwrite
+      - name: Restore your code
+        run: |
+          cp /tmp/mycode.dart lib/main.dart
+          echo "Copied to lib/main.dart"
       - run: flutter pub get
       - run: flutter build apk --debug
       - uses: actions/upload-artifact@v4
